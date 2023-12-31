@@ -41,6 +41,7 @@ module hockey(
         score_B <= 0;
         X_COORD <= 3'b0;
         Y_COORD <= 3'b0;
+        timer <= 0;
     end
 
 
@@ -54,6 +55,7 @@ module hockey(
             score_B <= 0;
             X_COORD <= 3'b0;
             Y_COORD <= 3'b0;
+            timer <= 0;
         end
         else
         begin
@@ -70,7 +72,6 @@ module hockey(
                         state <= IDLE;
                 end
                 DISPLAY: begin
-                    timer <= 0;
                     if(timer < 2)
                         timer <= timer + 1;
                         state <= DISPLAY;
@@ -101,7 +102,6 @@ module hockey(
                 end
                 end
                 SEND_A: begin
-                    timer <= 0;
                     if(timer < 2)
                         timer <= timer + 1;
                         state <= SEND_A;
@@ -132,7 +132,6 @@ module hockey(
                             state <= RESP_A;
                 end
                 SEND_B: begin
-                    timer <= 0;
                     if(timer < 2)
                         timer <= timer + 1;
                         state <= SEND_B;
@@ -164,7 +163,6 @@ module hockey(
                 end
                 end
                 RESP_A: begin
-                    timer <= 0;
                     if(timer < 2)
                         if(BTN_A && (Y_COORD == Y_in_A))
                             X_COORD <= 1;
@@ -199,7 +197,6 @@ module hockey(
                         state <= GOAL_B;
                 end
                 RESP_B: begin
-                    timer <= 0;
                     if(timer < 2)
                         if(BTN_B && (Y_COORD == Y_in_B))
                             X_COORD <= 6;
@@ -235,7 +232,6 @@ module hockey(
                 end
                 end
                 GOAL_A: begin
-                    timer <= 0;
                     if timer < 2
                         timer <= timer + 1;
                         state <= GOAL_A;
@@ -249,7 +245,6 @@ module hockey(
                 end
                 end
                 GOAL_B: begin
-                    timer <= 0;
                     if timer < 2
                         timer <= timer + 1;
                         state <= GOAL_B;
@@ -262,7 +257,6 @@ module hockey(
                             state <= HIT_A;
                 end
                 GAME_OVER: begin
-                    timer <= 0;
                     if timer < 2
                         timer <= timer + 1;
                         state <= GAME_OVER;
