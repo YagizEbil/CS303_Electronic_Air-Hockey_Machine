@@ -64,10 +64,13 @@ module hockey(
             X_COORD <= 3'b0;
             Y_COORD <= 3'b0;
             timer <= 0;
+            flag <= 0;
         end
         else
         begin
             Current_State <= state;
+            A_Score <= score_A;
+            B_Score <= score_B;
             case (state)
                 IDLE: begin
                     if (BTN_A || BTN_B) 
@@ -250,7 +253,6 @@ module hockey(
                     else begin
                         timer <= 0;
                         score_B <= score_B + 1;
-                        B_Score <= score_B;
                         state <= GOAL_B;
                     end
                 end
@@ -270,7 +272,7 @@ module hockey(
                                     state <= SEND_A;
                                 end
                                 else begin
-                                    dirY <= DIR_B;
+                                    dirY <= DIR_A;
                                     Y_COORD <= Y_COORD + 1;
                                     state <= SEND_A;
                                 end
@@ -288,16 +290,16 @@ module hockey(
                                 end
                             end
                         end
-                        else begin 
+                        else begin
                             timer <= timer + 1;
                             state <= RESP_B;
                         end
                     end
-                    else 
+                    else begin
                         timer <= 0;
                         score_A <= score_A + 1;
-                        A_Score <= score_A;
                         state <= GOAL_A;
+                    end
                 end
                 GOAL_A: begin
                     if (timer < 2) begin
