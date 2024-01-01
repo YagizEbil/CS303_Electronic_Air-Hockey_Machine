@@ -311,11 +311,13 @@ module hockey(
                     end
                     else begin
                         timer <= 0;
-                        if (score_B==3)
+                        if (score_B==3) begin
                             turn <= 2'b10;
                             state <= GAME_OVER;
-                        else
+                        end
+                        else begin
                             state <= HIT_A;
+                        end
                     end
                 end
                 GAME_OVER: begin
@@ -329,6 +331,8 @@ module hockey(
                     end
                 end
                 default: state <= IDLE;
+            endcase
         end
+    end
 
 endmodule
