@@ -27,11 +27,16 @@ module hockey(
 	
 	output reg [2:0] X_COORD,
 	output reg [2:0] Y_COORD,
-    output reg [3:0] Current_State
-    
+    output reg [3:0] Current_State,
+    output reg [1:0] A_Score,
+    output reg [1:0] B_Score,
+    output reg flag
     );
     
-    parameter IDLE = 0, DISPLAY = 1, HIT_A = 2, HIT_B = 3, SEND_A = 4, SEND_B = 5, RESP_A = 6, RESP_B = 7, GOAL_A = 8, GOAL_B = 9, GAME_OVER = 10;
+    parameter IDLE = 0, DISPLAY = 1, HIT_A = 2, 
+    HIT_B = 3, SEND_A = 4, SEND_B = 5, RESP_A = 6, 
+    RESP_B = 7, GOAL_A = 8, GOAL_B = 9, GAME_OVER = 10;
+
     reg [3:0] state;
     reg [1:0] score_A, score_B;
     reg [1:0] turn;
@@ -114,7 +119,7 @@ module hockey(
                 end
                 HIT_B: begin
                     if (BTN_B && (Y_in_B <5)) begin
-                        X_COORD <= 7;
+                        X_COORD <= 4;
                         Y_COORD <= Y_in_B;
                         dirY <= DIR_B;
                         state <= SEND_A;
@@ -245,6 +250,7 @@ module hockey(
                     else begin
                         timer <= 0;
                         score_B <= score_B + 1;
+                        B_Score <= score_B;
                         state <= GOAL_B;
                     end
                 end
@@ -290,6 +296,7 @@ module hockey(
                     else 
                         timer <= 0;
                         score_A <= score_A + 1;
+                        A_Score <= score_A;
                         state <= GOAL_A;
                 end
                 GOAL_A: begin
@@ -301,6 +308,7 @@ module hockey(
                         timer <= 0;
                         if (score_A==3) begin
                             turn <= 2'b01;
+                            flag <= 1;
                             state <= GAME_OVER;
                         end
                         else begin
@@ -317,6 +325,7 @@ module hockey(
                         timer <= 0;
                         if (score_B==3) begin
                             turn <= 2'b10;
+                            flag <= 1;
                             state <= GAME_OVER;
                         end
                         else begin
@@ -341,3 +350,5 @@ module hockey(
         end
     end   
 endmodule
+
+
