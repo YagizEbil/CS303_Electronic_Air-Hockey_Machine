@@ -26,7 +26,8 @@ module hockey(
     output reg [6:0] SSD0   */
 	
 	output reg [2:0] X_COORD,
-	output reg [2:0] Y_COORD
+	output reg [2:0] Y_COORD,
+    output reg [3:0] Current_State
     
     );
     
@@ -34,6 +35,8 @@ module hockey(
     reg [3:0] state;
     reg [1:0] score_A, score_B;
     reg [1:0] turn;
+    reg [1:0] dirY;
+    reg [2:0] timer;
 
     initial begin
         state <= IDLE;
@@ -59,208 +62,282 @@ module hockey(
         end
         else
         begin
+            Current_State <= state;
             case (state)
                 IDLE: begin
-                    if (BTN_A || BTN_B)
-                        if (BTN_A)
+                    if (BTN_A || BTN_B) 
+                    begin
+                        if (BTN_A) 
+                        begin
                             turn <= 2'b01;
                             state <= DISPLAY;
-                        else
+                        end
+                        else 
+                        begin
                             turn <= 2'b10;
                             state <= DISPLAY;
-                    else
+                        end
+                    end 
+                    else 
+                    begin
                         state <= IDLE;
+                    end
                 end
                 DISPLAY: begin
-                    if(timer < 2)
+                    if(timer < 2) begin
                         timer <= timer + 1;
                         state <= DISPLAY;
                         //burada led med yakmak gerekebilir ben bilmeyen
-                    else
-                        if(turn == 2'b01)
+			            //simulation kısmı için led'e gerek yok gibi algıladım 
+                    end
+                    else begin
+                        timer <= 0;
+                        if(turn == 2'b01) begin
                             state <= HIT_A;
-                        else
+                        end
+                        else begin
                             state <= HIT_B;
+			                //timer'ları sıfıra eşitledim, asm chartta öyle yazmış şair
+                        end
+                    end
                 end
                 HIT_A: begin
-                    if (BTN_A && (Y_in_A <5))
+                    if (BTN_A && (Y_in_A <5)) begin
                         X_COORD <= 0;
                         Y_COORD <= Y_in_A;
                         dirY <= DIR_A;
-                        STATE <= SEND_B;
-                    else 
+                        state <= SEND_B;
+                    end
+                    else begin
                         state <= HIT_A;
+                    end
                 end
                 HIT_B: begin
-                    if (BTN_B && (Y_in_B <5))
+                    if (BTN_B && (Y_in_B <5)) begin
                         X_COORD <= 7;
                         Y_COORD <= Y_in_B;
                         dirY <= DIR_B;
-                        STATE <= SEND_A;
-                    else 
+                        state <= SEND_A;
+                    end
+                    else begin
                         state <= HIT_B;
+                    end
                 end
                 SEND_A: begin
-                    if(timer < 2)
+                    if(timer < 2) begin
                         timer <= timer + 1;
                         state <= SEND_A;
-                    else
+                    end
+                    else begin
                         timer <= 0;
 
-                        if(dirY == 2'b10)
-                            if(Y_COORD == 0)
+                        if(dirY == 2'b10) begin
+                            if(Y_COORD == 0) begin
                                 dirY <= 2'b01;
                                 Y_COORD <= Y_COORD + 1;
-                            else 
+                            end
+                            else begin
                                 Y_COORD <= Y_COORD - 1;
+                            end
+                        end
 
-                        else if (dirY == 2'b01)
-                            if(Y_COORD == 4)
+                        else if (dirY == 2'b01) begin
+                            if(Y_COORD == 4) begin
                                 dirY <= 2'b10;
                                 Y_COORD <= Y_COORD - 1;
-                            else 
+                            end
+                            else begin
                                 Y_COORD <= Y_COORD + 1;
-                        else
+                            end
+                        end
+                        else begin
                             Y_COORD <= Y_COORD;
+                        end
                         
-                        if (X_COORD > 1)
+                        if (X_COORD > 1) begin
                             X_COORD <= X_COORD - 1;
                             state <= SEND_A;
-                        else
+                        end
+                        else begin
                             X_COORD <= 0;
                             state <= RESP_A;
+                        end
+                    end
                 end
                 SEND_B: begin
-                    if(timer < 2)
+                    if(timer < 2) begin
                         timer <= timer + 1;
                         state <= SEND_B;
-                    else
+                    end
+                    else begin
                         timer <= 0;
-
-                        if(dirY == 2'b10)
-                            if(Y_COORD == 0)
+                        if(dirY == 2'b10) begin
+                            if(Y_COORD == 0) begin
                                 dirY <= 2'b01;
                                 Y_COORD <= Y_COORD + 1;
-                            else 
+                            end
+                            else begin
                                 Y_COORD <= Y_COORD - 1;
+                            end
+                        end
 
-                        else if (dirY == 2'b01)
-                            if(Y_COORD == 4)
+                        else if (dirY == 2'b01) begin
+                            if(Y_COORD == 4) begin
                                 dirY <= 2'b10;
                                 Y_COORD <= Y_COORD - 1;
-                            else 
+                            end
+                            else begin
                                 Y_COORD <= Y_COORD + 1;
-                        else
+                            end
+                        end
+                        else begin
                             Y_COORD <= Y_COORD;
-                        
-                        if (X_COORD < 6)
-                            X_COORD <= X_COORD + 1;
-                            state <= SEND_B;
-                        else
-                            X_COORD <= 7;
-                            state <= RESP_B;
+                        end
+                        if (X_COORD < 3) begin
+                                X_COORD <= X_COORD + 1;
+                                state <= SEND_B;
+                        end
+                        else begin
+                                X_COORD <= 4;
+                                state <= RESP_B;
+                        end    
+                    end
                 end
                 RESP_A: begin
-                    if(timer < 2)
-                        if(BTN_A && (Y_COORD == Y_in_A))
+                    if(timer < 2) begin
+                        if(BTN_A && (Y_COORD == Y_in_A)) begin
                             X_COORD <= 1;
                             timer <= 0;
-                            if (DIR_B == 2'b00)
+                            if (DIR_B == 2'b00) begin
                                 dirY <= DIR_B;
                                 state <= SEND_B;
-                            else if(DIR_B == 2'b01)
-                                if(Y_COORD == 4)
+                            end
+                            else if(DIR_B == 2'b01) begin
+                                if(Y_COORD == 4) begin
                                     dirY <= 2'b10;
                                     Y_COORD <= Y_COORD - 1;
-                                    STATE <= SEND_B;
-                                else 
+                                    state <= SEND_B;
+                                end
+                                else begin
                                     dirY <= DIR_A;
                                     Y_COORD <= Y_COORD + 1;
-                                    STATE <= SEND_B;
-                            else 
-                                if(Y_COORD == 0)
+                                    state <= SEND_B;
+                                end
+                            end
+                            else begin
+                                if(Y_COORD == 0) begin
                                     dirY <= 2'b01;
                                     Y_COORD <= Y_COORD + 1;
-                                    STATE <= SEND_B;
-                                else 
+                                    state <= SEND_B;
+                                end
+                                else begin
                                     dirY <= DIR_A;
                                     Y_COORD <= Y_COORD - 1;
-                                    STATE <= SEND_B;
-                        else 
+                                    state <= SEND_B;
+                                end
+                            end
+                        end
+                        else begin
                             timer <= timer + 1;
                             state <= RESP_A;
-                    else 
+                        end
+                    end
+                    else begin
                         timer <= 0;
                         score_B <= score_B + 1;
                         state <= GOAL_B;
+                    end
                 end
                 RESP_B: begin
-                    if(timer < 2)
-                        if(BTN_B && (Y_COORD == Y_in_B))
-                            X_COORD <= 6;
+                    if(timer < 2) begin
+                        if(BTN_B && (Y_COORD == Y_in_B)) begin
+                            X_COORD <= 3;
                             timer <= 0;
-                            if (DIR_A == 2'b00)
+                            if (DIR_A == 2'b00) begin
                                 dirY <= DIR_A;
                                 state <= SEND_A;
-                            else if(DIR_A == 2'b01)
-                                if(Y_COORD == 4)
+                            end
+                            else if(DIR_A == 2'b01) begin
+                                if(Y_COORD == 4) begin
                                     dirY <= 2'b10;
                                     Y_COORD <= Y_COORD - 1;
-                                    STATE <= SEND_A;
-                                else 
-                                    dirY <= DIR_A;
+                                    state <= SEND_A;
+                                end
+                                else begin
+                                    dirY <= DIR_B;
                                     Y_COORD <= Y_COORD + 1;
-                                    STATE <= SEND_A;
-                            else 
-                                if(Y_COORD == 0)
+                                    state <= SEND_A;
+                                end
+                            end
+                            else begin
+                                if(Y_COORD == 0) begin
                                     dirY <= 2'b01;
                                     Y_COORD <= Y_COORD + 1;
-                                    STATE <= SEND_A;
-                                else 
+                                    state <= SEND_A;
+                                end
+                                else begin
                                     dirY <= DIR_A;
                                     Y_COORD <= Y_COORD - 1;
-                                    STATE <= SEND_A;
-                        else 
+                                    state <= SEND_A;
+                                end
+                            end
+                        end
+                        else begin 
                             timer <= timer + 1;
                             state <= RESP_B;
+                        end
+                    end
                     else 
                         timer <= 0;
                         score_A <= score_A + 1;
                         state <= GOAL_A;
                 end
                 GOAL_A: begin
-                    if timer < 2
+                    if (timer < 2) begin
                         timer <= timer + 1;
                         state <= GOAL_A;
-                    else
+                    end
+                    else begin
                         timer <= 0;
-                        if (score_A==3)
+                        if (score_A==3) begin
                             turn <= 2'b01;
                             state <= GAME_OVER;
-                        else
+                        end
+                        else begin
                             state <= HIT_B;
+                        end
+                    end
                 end
                 GOAL_B: begin
-                    if timer < 2
+                    if (timer < 2) begin
                         timer <= timer + 1;
                         state <= GOAL_B;
-                    else
+                    end
+                    else begin
                         timer <= 0;
-                        if (score_B==3)
+                        if (score_B==3) begin
                             turn <= 2'b10;
                             state <= GAME_OVER;
-                        else
+                        end
+                        else begin
                             state <= HIT_A;
+                        end
+                    end
                 end
                 GAME_OVER: begin
-                    if timer < 2
+                    if (timer < 2) begin
                         timer <= timer + 1;
                         state <= GAME_OVER;
-                    else
+                    end
+                    else begin
                         timer <= 0;
                         state <= IDLE;
+                    end
                 end
-                default: state <= IDLE;
+                default: begin
+                    state <= IDLE;
+                end
+            endcase
         end
-
+    end   
 endmodule
