@@ -1,1 +1,1 @@
-# CS331-Term-Project
+# CS303 Logic and Digital System Design, Sabancı University
