@@ -48,8 +48,8 @@ This project involves designing and implementing an electronic air-hockey game f
 
 ## Authors
 
-- [https://github.com/YagizEbil]
-- [https://github.com/teo123man]
+- [Kadir Yağız Ebil](https://github.com/YagizEbil)
+- [Teoman Arabul](https://github.com/teo123man)
 
 ## License
 
