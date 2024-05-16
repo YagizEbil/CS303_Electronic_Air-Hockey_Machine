@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
-// Engineer: 
+// Engineers: Kadir Yağız Ebil, Teoman Arabul
 // 
 // Create Date: 01/05/2023 05:35:09 PM
 // Design Name: 
